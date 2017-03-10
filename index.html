@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head >
+    <meta charset="UTF-8" >
+    <title >MaskedImage</title >
+    <style >
+        html,body{
+            height: 100%;
+        }
+
+        body{
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+    </style >
+</head >
+<body >
+<canvas id="canvas" width="200" height="150" />
+<script >
+  class MaskedImage {
+    constructor(props) {
+      this.ctx = props.ctx;
+      const img = new Image();
+      const maskImg = new Image();
+      img.onload =  ()=> {
+        this.ctx.drawImage(img, 0, 0);
+        this.drawText();
+      };
+      img.src = props.img;
+      maskImg.src = props.maskImg;
+
+      this.img = img;
+      this.maskImg = maskImg;
+      this.imgOpacity = 1;
+      this.maskImgOpacity = props.maskOpacity;
+      this.maskImgCurrentOpacity = props.maskOpacity;
+      this.duration = props.duration;
+      this.text = props.text;
+
+
+      this.ctx.canvas.addEventListener('mouseenter', () => {
+        maskedImg.animateMask();
+      });
+
+      this.ctx.canvas.addEventListener('mouseleave', () => {
+        maskedImg.dismissMask();
+      });
+    }
+
+    animate(initOpacity, finalOpacity, duration) {
+      let start = window.performance.now();
+      const deltaOpacity = finalOpacity - initOpacity;
+
+      let step = (timestamp) => {
+        const delta = timestamp - start;
+        if (delta < 0) {
+          requestAnimationFrame(step);
+        } else {
+          const progress = Math.min(delta / duration, 1);
+          const opacity = initOpacity + progress * (deltaOpacity);
+
+          this.ctx.globalAlpha = this.imgOpacity;
+          this.ctx.drawImage(this.img, 0, 0);
+          this.ctx.globalAlpha = opacity;
+          this.ctx.drawImage(this.maskImg, 0, 0);
+          this.ctx.globalAlpha =1;
+          this.drawText();
+          this.maskImgCurrentOpacity = opacity;
+          if (progress < 1) {
+            requestAnimationFrame(step);
+          }
+        }
+      };
+
+      requestAnimationFrame(step);
+    }
+
+    animateMask() {
+      this.animate(0, this.maskImgOpacity, this.duration);
+    }
+
+    dismissMask() {
+      this.animate(this.maskImgCurrentOpacity, 0, this.duration);
+    }
+
+    drawText(){
+      const x = this.ctx.canvas.width / 2;
+      const y = this.ctx.canvas.height / 2;
+
+      this.ctx.font = '30px Arial';
+      this.ctx.textAlign = 'center';
+      this.ctx.fillStyle = 'white';
+      this.ctx.fillText(this.text, x, y);
+    }
+
+  }
+
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+
+  const maskedImg = new MaskedImage({
+    ctx,
+    text: 'Hello World',
+    img: 'https://d13yacurqjgara.cloudfront.net/users/1052957/screenshots/3349329/471ac443399575.5836ceb06dee3_teaser.png',
+    maskImg: 'https://d13yacurqjgara.cloudfront.net/users/5055/screenshots/3321006/head_teaser.png',
+    maskOpacity: 0.8,
+    duration: 300,
+  });
+
+</script >
+</body >
+</html >
