@@ -1,6 +1,6 @@
 
 
-应朋友要求用 Canvas 实现的图片上渐变另一张图片的效果
+用 Canvas 实现的图片上渐变另一张图片的效果
 
 [https://soonlive.github.io/MaskedImage/](https://soonlive.github.io/MaskedImage/)
 
